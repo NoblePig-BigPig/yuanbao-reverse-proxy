@@ -175,7 +175,7 @@ async function handleChatRequest(req: Request, res: Response, isRetry = false) {
         id: 'gpt_175B_0404',
         chatModelId: 'hunyuan_gpt_175B_0404',
         extInfo: "{\"modelId\":\"hunyuan_gpt_175B_0404\",\"subModelId\":\"\",\"supportFunctions\":{\"internetSearch\":\"closeInternetSearch\"}}",
-        supportFunctions: ["closeInternetSearch"]
+        supportFunctions: { "internetSearch": "closeInternetSearch" }
     };
 
     // 2. Prompt Construction
@@ -341,7 +341,11 @@ async function handleChatRequest(req: Request, res: Response, isRetry = false) {
         // 🔄 AUTO-RECOVERY LOGIC
         // ==========================================
         const statusCode = error.response?.status;
+        const errorData = error.response?.data;
         console.error(`❌ Request Failed (Status: ${statusCode}) - ${error.message}`);
+        if (errorData) {
+            console.error('📦 Error Response Data:', typeof errorData === 'object' ? JSON.stringify(errorData) : errorData);
+        }
 
         // If we are using a Sticky ID and get a client error (400) or Server Error (500), 
         // it likely means the Session ID is stale/invalid.

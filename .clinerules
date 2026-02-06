@@ -1,0 +1,43 @@
+# Cline Rules Configuration
+
+## Skills Directory Configuration
+
+This file defines the skills directory and core operational procedures for Cline.
+
+### Skills Directory Settings
+- **Path**: ./skills/
+- **Required Files**: 
+  - Task_Loop_Operation.md (Core workflow procedures)
+  - Skill_Loading_Protocol.md (Skills loading protocols)
+- **Action**: Always read at session start
+
+### Initialization Instructions
+
+At the beginning of every conversation, Cline should:
+
+1. **List files in ./skills/** to discover available skills
+2. **Read ./skills/Task_Loop_Operation.md** to load core operational procedures
+3. **Apply the Task Loop Operation workflow** for all subsequent tasks
+
+### Core Workflow Reference
+
+The `Task_Loop_Operation.md` file contains the Standard Operating Procedure (SOP) for:
+- Requirement Analysis
+- Step Planning
+- Step-by-Step Execution
+- Acceptance Verification
+- Failure Handling & Re-entry
+
+### Quick Start Template
+
+```
+At session start:
+1. List files in ./skills/
+2. Read ./skills/Task_Loop_Operation.md
+3. Begin task execution using the loaded procedures
+```
+
+### Notes
+- Keep this file updated when adding new skills to the skills/ directory
+- Document any changes to the skills loading process here
+- This configuration ensures consistent behavior across all conversation sessions
