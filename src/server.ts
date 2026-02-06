@@ -175,44 +175,28 @@ async function handleChatRequest(req: Request, res: Response, isRetry = false) {
         id: 'gpt_175B_0404',
         chatModelId: 'hunyuan_gpt_175B_0404',
         extInfo: "{\"modelId\":\"hunyuan_gpt_175B_0404\",\"subModelId\":\"\",\"supportFunctions\":{\"internetSearch\":\"closeInternetSearch\"}}",
-        supportFunctions: { "internetSearch": "closeInternetSearch" }
+        supportFunctions: ["closeInternetSearch"]
     };
 
     // 2. Prompt Construction
     let prompt = '';
     try {
-        if (Array.isArray(messages) && messages.length > 0) {
-            // Check if we should only send the last message (experimental for persistent sessions)
-            // If stickyConversationId is set, Yuanbao server-side ALREADY has the history.
-            // Sending it again in the 'prompt' field will cause duplication or confusion.
-            if (config.stickyConversationId) {
-                const lastMsg = messages[messages.length - 1];
-                let lastContent = '';
-                if (Array.isArray(lastMsg.content)) {
-                    lastContent = lastMsg.content.map(p => (p as any).text || '').join('');
+        if (Array.isArray(messages)) {
+            prompt = messages.map(m => {
+                let roleName = m.role === 'system' ? 'System' : (m.role === 'assistant' ? 'Assistant' : 'User');
+                let contentStr = '';
+                if (Array.isArray(m.content)) {
+                    contentStr = m.content.map(part => {
+                        if (part && typeof part === 'object' && part.type === 'text') {
+                            return (part as any).text || '';
+                        }
+                        return '';
+                    }).join('');
                 } else {
-                    lastContent = String(lastMsg.content || '');
+                    contentStr = String(m.content || '');
                 }
-                prompt = lastContent;
-                console.log(`[${new Date().toISOString()}] 📌 Sticky Mode: Only sending last message.`);
-            } else {
-                // New session: Synthesize history
-                prompt = messages.map(m => {
-                    let roleName = m.role === 'system' ? 'System' : (m.role === 'assistant' ? 'Assistant' : 'User');
-                    let contentStr = '';
-                    if (Array.isArray(m.content)) {
-                        contentStr = m.content.map(part => {
-                            if (part && typeof part === 'object' && part.type === 'text') {
-                                return (part as any).text || '';
-                            }
-                            return '';
-                        }).join('');
-                    } else {
-                        contentStr = String(m.content || '');
-                    }
-                    return `${roleName}: ${contentStr}`;
-                }).join('\n\n');
-            }
+                return `${roleName}: ${contentStr}`;
+            }).join('\n\n');
         } else {
             prompt = String(messages || '');
         }
