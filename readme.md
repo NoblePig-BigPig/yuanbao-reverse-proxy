@@ -6,7 +6,6 @@
 - **OpenAI 完全相容**：提供 `/v1/chat/completions` 端點。
 - **自動斷線重連**：自動檢測 Session 逾期並重新連接（Sticky Session）。
 - **高效能 TypeScript**：使用 `tsx` 直接運行，無需編譯步驟。
-- **支援 DeepSeek**：支援在元寶平台切換 DeepSeek V3 模型。
 
 ## 🚀 快速上手
 
@@ -44,8 +43,7 @@ npm run dev
 3. **輸入 Base URL**：`http://localhost:3005/v1`
 4. **輸入 API Key**：`sk-any` (此欄位不能為空，但內容隨意)。
 5. **指定 Model ID**：
-   - 使用混元：輸入 `hunyuan`
-   - 使用 DeepSeek：輸入 `deepseek`
+   - 輸入 `hunyuan`
 6. **點擊 Done 確認**。
 
 現在您可以像使用 GPT-4 一樣與元寶進行對話和程式碼編寫了！

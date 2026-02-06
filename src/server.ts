@@ -165,13 +165,7 @@ async function handleChatRequest(req: Request, res: Response, isRetry = false) {
     const { messages, model, stream } = req.body as OpenAIRequest;
 
     // 1. Model Mapping
-    const isDeepSeek = model && model.toLowerCase().includes('deepseek');
-    const selectedModel = isDeepSeek ? {
-        id: 'deep_seek_v3',
-        chatModelId: 'deep_seek_v3',
-        extInfo: "{\"modelId\":\"deep_seek_v3\",\"subModelId\":\"\",\"supportFunctions\":{\"internetSearch\":\"closeInternetSearch\"}}",
-        supportFunctions: { "internetSearch": "closeInternetSearch" }
-    } : {
+    const selectedModel = {
         id: 'gpt_175B_0404',
         chatModelId: 'hunyuan_gpt_175B_0404',
         extInfo: "{\"modelId\":\"hunyuan_gpt_175B_0404\",\"subModelId\":\"\",\"supportFunctions\":{\"internetSearch\":\"closeInternetSearch\"}}",
