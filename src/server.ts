@@ -164,6 +164,12 @@ app.post('/v1/chat/completions', async (req: Request, res: Response) => {
 async function handleChatRequest(req: Request, res: Response, isRetry = false) {
     const { messages, model, stream } = req.body as OpenAIRequest;
 
+    console.log(`[${new Date().toISOString()}] 📩 Incoming Messages Count: ${messages?.length}`);
+    if (messages?.length > 0) {
+        console.log(`[${new Date().toISOString()}] 🔍 First Message Role: ${messages[0].role}`);
+        console.log(`[${new Date().toISOString()}] 🔍 Last Message Role: ${messages[messages.length - 1].role}`);
+    }
+
     // 1. Model Mapping
     const selectedModel = {
         id: 'gpt_175B_0404',
@@ -175,22 +181,38 @@ async function handleChatRequest(req: Request, res: Response, isRetry = false) {
     // 2. Prompt Construction
     let prompt = '';
     try {
-        if (Array.isArray(messages)) {
-            prompt = messages.map(m => {
-                let roleName = m.role === 'system' ? 'System' : (m.role === 'assistant' ? 'Assistant' : 'User');
-                let contentStr = '';
-                if (Array.isArray(m.content)) {
-                    contentStr = m.content.map(part => {
-                        if (part && typeof part === 'object' && part.type === 'text') {
-                            return part.text || '';
-                        }
-                        return '';
-                    }).join('');
+        if (Array.isArray(messages) && messages.length > 0) {
+            // Check if we should only send the last message (experimental for persistent sessions)
+            // If stickyConversationId is set, Yuanbao server-side ALREADY has the history.
+            // Sending it again in the 'prompt' field will cause duplication or confusion.
+            if (config.stickyConversationId) {
+                const lastMsg = messages[messages.length - 1];
+                let lastContent = '';
+                if (Array.isArray(lastMsg.content)) {
+                    lastContent = lastMsg.content.map(p => (p as any).text || '').join('');
                 } else {
-                    contentStr = String(m.content || '');
+                    lastContent = String(lastMsg.content || '');
                 }
-                return `${roleName}: ${contentStr}`;
-            }).join('\n\n');
+                prompt = lastContent;
+                console.log(`[${new Date().toISOString()}] 📌 Sticky Mode: Only sending last message.`);
+            } else {
+                // New session: Synthesize history
+                prompt = messages.map(m => {
+                    let roleName = m.role === 'system' ? 'System' : (m.role === 'assistant' ? 'Assistant' : 'User');
+                    let contentStr = '';
+                    if (Array.isArray(m.content)) {
+                        contentStr = m.content.map(part => {
+                            if (part && typeof part === 'object' && part.type === 'text') {
+                                return (part as any).text || '';
+                            }
+                            return '';
+                        }).join('');
+                    } else {
+                        contentStr = String(m.content || '');
+                    }
+                    return `${roleName}: ${contentStr}`;
+                }).join('\n\n');
+            }
         } else {
             prompt = String(messages || '');
         }
@@ -198,6 +220,8 @@ async function handleChatRequest(req: Request, res: Response, isRetry = false) {
         console.error('❌ Prompt Parse Error:', parseError);
         prompt = "Context parse error";
     }
+
+    console.log(`[${new Date().toISOString()}] 📝 Final Prompt (preview): ${prompt.substring(0, 200).replace(/\n/g, ' ')}...`);
 
     // 3. Conversation ID Logic (Auto-Recovery)
     let conversationId = config.stickyConversationId;
