@@ -2,6 +2,9 @@
 
 這是一個本地代理伺服器，將騰訊元寶 (Tencent Yuanbao) 的 API 轉換為標準的 OpenAI Chat Completion API 格式。這讓您可以在 VS Code Cline、Cursor 或任何相容 OpenAI 的客戶端中使用騰訊混元 (Hunyuan) 模型（包括最新的 DeepSeek V3）。
 
+> [!WARNING]
+> **目前暫時不支援 DeepSeek (DK) 模型，請僅使用混元 (Hunyuan) 模型。**
+
 ## ✨ 功能特色
 - **OpenAI 完全相容**：提供 `/v1/chat/completions` 端點。
 - **自動斷線重連**：自動檢測 Session 逾期並重新連接（Sticky Session）。
