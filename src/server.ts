@@ -181,22 +181,37 @@ async function handleChatRequest(req: Request, res: Response, isRetry = false) {
     // 2. Prompt Construction
     let prompt = '';
     try {
-        if (Array.isArray(messages)) {
-            prompt = messages.map(m => {
-                let roleName = m.role === 'system' ? 'System' : (m.role === 'assistant' ? 'Assistant' : 'User');
-                let contentStr = '';
-                if (Array.isArray(m.content)) {
-                    contentStr = m.content.map(part => {
-                        if (part && typeof part === 'object' && part.type === 'text') {
-                            return (part as any).text || '';
-                        }
-                        return '';
-                    }).join('');
+        if (Array.isArray(messages) && messages.length > 0) {
+            if (config.stickyConversationId) {
+                // Persistent Session: Only send the last message.
+                // Yuanbao server-side already stores the history linked to the CID.
+                const lastMsg = messages[messages.length - 1];
+                let lastContent = '';
+                if (Array.isArray(lastMsg.content)) {
+                    lastContent = lastMsg.content.map(p => (p as any).text || '').join('');
                 } else {
-                    contentStr = String(m.content || '');
+                    lastContent = String(lastMsg.content || '');
                 }
-                return `${roleName}: ${contentStr}`;
-            }).join('\n\n');
+                prompt = lastContent;
+                console.log(`[${new Date().toISOString()}] 📌 Sticky Mode: Pruned history to last message only.`);
+            } else {
+                // New Session: Synthesize full history for initial context.
+                prompt = messages.map(m => {
+                    let roleName = m.role === 'system' ? 'System' : (m.role === 'assistant' ? 'Assistant' : 'User');
+                    let contentStr = '';
+                    if (Array.isArray(m.content)) {
+                        contentStr = m.content.map(part => {
+                            if (part && typeof part === 'object' && part.type === 'text') {
+                                return (part as any).text || '';
+                            }
+                            return '';
+                        }).join('');
+                    } else {
+                        contentStr = String(m.content || '');
+                    }
+                    return `${roleName}: ${contentStr}`;
+                }).join('\n\n');
+            }
         } else {
             prompt = String(messages || '');
         }
