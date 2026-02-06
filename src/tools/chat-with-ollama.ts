@@ -44,7 +44,7 @@ async function checkOllamaHealth(): Promise<boolean> {
 async function getAvailableModels(): Promise<string[]> {
     try {
         const response = await fetch(`${OLLAMA_BASE_URL}/api/tags`);
-        if (!response.ok) return;
+        if (!response.ok) return [];
         const data = await response.json();
         return data.models?.map((m: any) => m.name) || [];
     } catch (error) {
