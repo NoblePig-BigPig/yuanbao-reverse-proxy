@@ -5,6 +5,8 @@
 > [!WARNING]
 > **目前暫時不支援 DeepSeek (DK) 模型，請僅使用混元 (Hunyuan) 模型。**
 
+![成功展示](./Display.png)
+
 ## ✨ 功能特色
 - **OpenAI 完全相容**：提供 `/v1/chat/completions` 端點。
 - **自動斷線重連**：自動檢測 Session 逾期並重新連接（Sticky Session）。
